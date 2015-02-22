@@ -1,0 +1,27 @@
+====================
+home_automation v0.4
+====================
+
+ * added proportional-integral controller for heaters
+
+
+====================
+home_automation v0.3
+====================
+
+ * added zigbee address record ability
+
+
+====================
+home_automation v0.2
+====================
+
+ * webdesign upgrade
+ * dates handling
+
+
+====================
+home_automation v0.1
+====================
+
+ * First release

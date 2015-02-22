@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chauffage</title>
+	<meta name="generator" content="Bluefish 2.2.5" >
+	<meta name="author" content="Toitoine" >
+	<meta name="date" content="2014-08-24T17:27:47+0200" >
+	<meta name="copyright" content="">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<meta http-equiv="expires" content="0">
+	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/select-style.css" rel="stylesheet" type="text/css" media="all" />
+	<script>
+		var graphDate = new Date()
+		var month = graphDate.getMonth() + 1
+		var day = graphDate.getDate()
+		var year = graphDate.getFullYear()
+		function change_chart(delta)
+			{
+			graphDate.setDate(graphDate.getDate()+delta);
+			month = graphDate.getMonth() + 1
+			day = graphDate.getDate()
+			year = graphDate.getFullYear()
+			document.all.average_temp.src="hc/day_graph/" + year + "/" + month + "/" + day + "/";
+			}
+	</script>
+</head>
+
+<body>
+
+<div id="header" class="container">
+	<div id="logo">
+		<h1><a href="#">Chauffage</a></h1>
+	</div>
+	<div id="menu">
+		<ul>
+			<li><a href="/hc" accesskey="1" title="">Homepage</a></li>
+			<li class="current_page_item"><a href="#" accesskey="2" title="">Programmation</a></li>
+		</ul>
+	</div>
+</div>
+<div id="welcome" class="wrapper-style1">
+	<div class="title">
+		<h2>Règles</h2>
+		<span class="byline">Paramétrage par pièces</span> </div>
+</div>
+<div id="page">
+	<div id="content" class="container">
+		<table id="rounded-corner" summary="Règles de température par pièce">
+			<thead>
+				<tr><th scope="col" class="rounded-company">Pièce</th><th scope="col" class="rounded-q4">Règle applicable</th></tr>
+			</thead>
+			<tfoot>
+				<tr>
+	        	<td colspan="1" class="rounded-foot-left"><em>Il faut être connecté pour modifier les règles</em></td>
+	        	<td class="rounded-foot-right">&nbsp;</td>
+				</tr>
+			</tfoot>
+			<tbody>
+			{% if sensor_list %}
+				{% for sensor in sensor_list %}
+					<tr>
+						<td>{{ sensor.room_name }}</td>
+						<td><div class="styled-select"><select name="Règle">
+						{% for ruleset in ruleset_list %}
+							<option value="{{ ruleset.id }}" {% if sensor.ruleset = ruleset %}selected{% endif %}>{{ ruleset.name }}</option>
+						{% endfor %}
+						{% if sensor.ruleset == None %}<option value="" selected> </option>{% endif %}
+						</select></div></td>
+					</tr>
+				{% endfor %}
+			{% else %}
+				<tr><td colspan="2"><em>Pas de capteur détecté</em></td></tr>
+			{% endif %}
+			</tbody>
+		</table>
+	</div>
+	<div id="sidebar"></div>
+</div>
+<div id="footer" class="container">
+	<p>Design by <a href="http://templated.co" rel="nofollow">TEMPLATED</a>.</p>
+</div>
+</body>
+</html>

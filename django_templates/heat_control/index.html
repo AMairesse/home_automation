@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chauffage</title>
+	<meta name="generator" content="Bluefish 2.2.5" >
+	<meta name="author" content="Toitoine" >
+	<meta name="date" content="2014-08-24T17:30:39+0200" >
+	<meta name="copyright" content="">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<meta http-equiv="expires" content="0">
+	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
+	<script>
+		var graphDateEnd = new Date()
+		var yearEnd = graphDateEnd.getFullYear()
+		var monthEnd = graphDateEnd.getMonth() + 1
+		var dayEnd = graphDateEnd.getDate()
+		var graphDateStart = new Date()
+		graphDateStart.setDate(graphDateEnd.getDate()-1);
+		var yearStart = graphDateStart.getFullYear()
+		var monthStart = graphDateStart.getMonth() + 1
+		var dayStart = graphDateStart.getDate()
+		function change_chart_start(delta)
+			{
+			graphDateStart.setDate(graphDateStart.getDate()+delta);
+			yearStart = graphDateStart.getFullYear()
+			monthStart = graphDateStart.getMonth() + 1
+			dayStart = graphDateStart.getDate()
+			yearEnd = graphDateEnd.getFullYear()
+			monthEnd = graphDateEnd.getMonth() + 1
+			dayEnd = graphDateEnd.getDate()
+			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
+			}
+		function change_chart_end(delta)
+			{
+			yearStart = graphDateStart.getFullYear()
+			monthStart = graphDateStart.getMonth() + 1
+			dayStart = graphDateStart.getDate()
+			graphDateEnd.setDate(graphDateEnd.getDate()+delta);
+			yearEnd = graphDateEnd.getFullYear()
+			monthEnd = graphDateEnd.getMonth() + 1
+			dayEnd = graphDateEnd.getDate()
+			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
+			}
+	</script>
+</head>
+
+<body>
+
+<div id="header" class="container">
+	<div id="logo">
+		<h1><a href="#">Chauffage</a></h1>
+	</div>
+	<div id="menu">
+		<ul>
+			<li class="current_page_item"><a href="#" accesskey="1" title="">Homepage</a></li>
+			<li><a href="/hc/ruleset" accesskey="2" title="">Programmation</a></li>
+		</ul>
+	</div>
+</div>
+<div id="welcome" class="wrapper-style1">
+	<div class="title">
+		<h2>Température</h2>
+		<span class="byline">Température par pièces</span> </div>
+</div>
+<div id="page">
+	<div id="content" class="container">
+		<script>
+		document.write("<iframe id=\"average_temp\" src=/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/ frameborder=\"0\" border=\"0\" height=\"500\" width=\"100%\"></iframe>")
+		</script>
+		<INPUT TYPE="button" VALUE="start one day before" onClick="change_chart_start(-1)">
+        <INPUT TYPE="button" VALUE="start one day after" onClick="change_chart_start(1)">
+		<INPUT TYPE="button" VALUE="end one day before" onClick="change_chart_end(-1)">
+        <INPUT TYPE="button" VALUE="end one day after" onClick="change_chart_end(1)">
+	</div>
+	<div id="sidebar"></div>
+</div>
+<div id="footer" class="container">
+	<p>Design by <a href="http://templated.co" rel="nofollow">TEMPLATED</a>.</p>
+</div>
+</body>
+</html>

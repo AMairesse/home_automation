@@ -1,0 +1,17 @@
+CONFIG = {
+    'mode': 'django',
+    'environment': {
+        'PYTHONPATH': '/usr/bin',
+        'PYTHON_EGG_CACHE': '/tmp/',
+    },
+    'working_dir': '/srv/home_automation',
+    'user': 'www-data',
+    'group': 'www-data',
+    'args': (
+        '--bind=127.0.0.1:8000',
+        #'--workers=4',
+        #'--worker-class=egg:gunicorn#sync',
+        #'--timeout=30',
+        'home_automation',
+    ),
+}
