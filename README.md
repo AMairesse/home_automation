@@ -119,5 +119,5 @@ Software :
   * Django 1.6.1 or above
   * django rest-framework
   * highcharts.js (provided in the repository for convenience)
-  * jquery-2.0.3.js (provided in the repository for convenience)
+  * jquery.js (provided in the repository for convenience)
   * gunicorn
