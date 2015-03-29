@@ -37,6 +37,10 @@ Launch 'sudo install.sh', this will :
     (parameter STATIC_ROOT into 'home_automation/settings.py')
   * change the owner to 'www-data/www-data' for the two directories
 
+Manually copy the file 'home_automation/settings.py' into 
+'/srv/home_automation/home_automation/settings.py' and update it :
+  * review INTERNAL_IPS and ALLOWED_HOSTS for your configuration
+
 Then you will need to set an application file for gunicorn in '/etc/gunicorn'.
 An example file can be found in 'docs/'.
 
