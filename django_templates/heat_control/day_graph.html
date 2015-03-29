@@ -33,7 +33,16 @@
                         type: 'datetime',
                         title: {
                             text: 'Date'
-                        }
+                        },
+                        plotBands: [
+                            {% for start, end in poweron_series %}
+                                {
+                                color: 'orange',
+                                from: new Date('{{ start|date:"c" }}'),
+                                to: new Date('{{ end|date:"c" }}')
+                                },
+                            {% endfor %}
+                        ],
                     },
                     yAxis: {
                         title: {

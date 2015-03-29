@@ -99,6 +99,21 @@ def hourly_averages(sensor, date_min, date_max):
     result_json = json.dumps(result)
     return {str(sensor.room_name) : result_json}
 
+def heater_poweron_list(heater, date_min, date_max):
+    history = Heater_history.objects.all().filter(heater = heater).filter(date__gte=date_min).filter(date__lte=date_max)
+    result = []
+    previous_date = date_min
+    # Build a list of tuples when the heater was on
+    for temp_history in history:
+        if (temp_history.state == False):
+            result.append([previous_date, temp_history.date])
+        previous_date = temp_history.date
+    # if the last element is true the we should add to the list until date_max
+    # Warning : this is a query set, negative indexing is not supported
+    if (history[history.count()-1].state == True):
+        result.append([history[-1].date, date_max])
+    return result
+
 def index(request):
     # Init template
     t = loader.get_template('heat_control/index.html')
@@ -126,6 +141,8 @@ def day_graph(request, year_start, month_start, day_start, year_end, month_end, 
     context_data = {}
     # Get sensors list
     sensor_list = Sensor.objects.all().filter(status = True).order_by('-hostname')[:5]
+    # Get heaters list
+    heater_list = Heater.objects.all().filter(status = True).order_by('-hostname')[:5]
     # Get chart data
     try:
         date_min = datetime(int(year_start), int(month_start), int(day_start), 0, 0, 0).replace(tzinfo=utc)
@@ -142,6 +159,12 @@ def day_graph(request, year_start, month_start, day_start, year_end, month_end, 
         hourly_avg = hourly_averages(sensor, date_min, date_max)
         chart_series.update(hourly_avg)
     context_data.update({'chart_series': chart_series})
+    # Get the power on serie for each heater
+    poweron_series = []
+    for heater in heater_list:
+        poweron_list = heater_poweron_list(heater, date_min, date_max)
+        poweron_series.extend(poweron_list)
+    context_data.update({'poweron_series': poweron_series})
     # Send response
     c = Context(context_data)
     return HttpResponse(t.render(c), content_type="text/html")
