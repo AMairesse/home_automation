@@ -9,6 +9,14 @@
 	<meta http-equiv="expires" content="0">
 	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
 	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
+
+	<link href="/static/jquery-ui.min.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/jquery.comiseo.daterangepicker.css" rel="stylesheet" type="text/css" media="all" />
+    <script src="/static/jquery.js"></script>
+    <script src="/static/jquery-ui.min.js"></script>
+    <script src="/static/moment.js"></script>
+    <script src="/static/jquery.comiseo.daterangepicker.min.js"></script>
+
 	<script>
 		var graphDateEnd = new Date()
 		var yearEnd = graphDateEnd.getFullYear()
@@ -19,29 +27,39 @@
 		var yearStart = graphDateStart.getFullYear()
 		var monthStart = graphDateStart.getMonth() + 1
 		var dayStart = graphDateStart.getDate()
-		function change_chart_start(delta)
-			{
-			graphDateStart.setDate(graphDateStart.getDate()+delta);
-			yearStart = graphDateStart.getFullYear()
-			monthStart = graphDateStart.getMonth() + 1
-			dayStart = graphDateStart.getDate()
-			yearEnd = graphDateEnd.getFullYear()
-			monthEnd = graphDateEnd.getMonth() + 1
-			dayEnd = graphDateEnd.getDate()
-			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
-			}
-		function change_chart_end(delta)
-			{
-			yearStart = graphDateStart.getFullYear()
-			monthStart = graphDateStart.getMonth() + 1
-			dayStart = graphDateStart.getDate()
-			graphDateEnd.setDate(graphDateEnd.getDate()+delta);
-			yearEnd = graphDateEnd.getFullYear()
-			monthEnd = graphDateEnd.getMonth() + 1
-			dayEnd = graphDateEnd.getDate()
-			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
-			}
 	</script>
+    <script>
+        $(function() {$("#date-range").daterangepicker({
+            datepickerOptions : {
+                numberOfMonths : 1,
+            },
+             presetRanges: [{
+                text: 'Aujourd&apos;hui',
+                dateStart: function() { return moment() },
+                dateEnd: function() { return moment() }
+                }, {
+                text: 'Depuis hier',
+                dateStart: function() { return moment().add('days', -1) },
+                dateEnd: function() { return moment() }
+                }, {
+                text: 'Semaine derni&egrave;re',
+                dateStart: function() { return moment().add('days', -6) },
+                dateEnd: function() { return moment() }
+                }],
+            initialText : 'S&eacute;lection d&apos;une p&eacute;riode...',
+            onChange: function() {
+                range = $("#date-range").daterangepicker("getRange")
+			    yearStart = range.start.getFullYear()
+			    monthStart = range.start.getMonth() + 1
+			    dayStart = range.start.getDate()
+			    yearEnd = range.end.getFullYear()
+			    monthEnd = range.end.getMonth() + 1
+			    dayEnd = range.end.getDate()
+    			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
+               },
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -67,10 +85,7 @@
 		<script>
 		document.write("<iframe id=\"average_temp\" src=/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/ frameborder=\"0\" border=\"0\" height=\"500\" width=\"100%\"></iframe>")
 		</script>
-		<INPUT TYPE="button" VALUE="start one day before" onClick="change_chart_start(-1)">
-        <INPUT TYPE="button" VALUE="start one day after" onClick="change_chart_start(1)">
-		<INPUT TYPE="button" VALUE="end one day before" onClick="change_chart_end(-1)">
-        <INPUT TYPE="button" VALUE="end one day after" onClick="change_chart_end(1)">
+        <input id="date-range" name="date_start">
 	</div>
 	<div id="sidebar"></div>
 </div>

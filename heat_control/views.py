@@ -146,10 +146,8 @@ def day_graph(request, year_start, month_start, day_start, year_end, month_end, 
     # Get chart data
     try:
         date_min = datetime(int(year_start), int(month_start), int(day_start), 0, 0, 0).replace(tzinfo=utc)
-        date_min_str = date_min.strftime('%A %d %B %Y')
         date_max = datetime(int(year_end), int(month_end), int(day_end), 23, 59, 59).replace(tzinfo=utc)
-        date_max_str = date_max.strftime('%A %d %B %Y')
-        context_data.update({'date_min': date_min_str, 'date_max': date_max_str, 'year': year_start, 'month': month_start, 'day': day_start})
+        context_data.update({'date_min': date_min, 'date_max': date_max, 'year': year_start, 'month': month_start, 'day': day_start})
     except:
         raise Http404
     categories_list = []

@@ -16,10 +16,12 @@
         <script>
 		    var dt = new Date()
        		timezone_offset = dt.getTimezoneOffset() * 60 * 1000
+       		date_min = new Date('{{ date_min|date:"c" }}')
+       		date_max = new Date('{{ date_max|date:"c" }}')
             $(function () { 
                 $('#container').highcharts({
                     title: {
-                        text: "Temperature heure par heure pour chaque capteur - De {{date_min}} à {{date_max}}"
+                        text: "Temperature - du " + date_min.toLocaleDateString() + " au " + date_max.toLocaleDateString()
                     },
                     chart: {
                         backgroundColor:'transparent',

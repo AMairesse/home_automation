@@ -1,3 +1,10 @@
+2015-03-29  Antoine Mairesse  <antoine.mairesse@free.fr>
+
+	* Added a date picker (using jQueryUI and jquery-ui-daterangepicker)
+	* Updated jQuery and Highcharts.js
+	* Added on graph heaters' working time
+	* Fixed install.sh script for config files
+
 2015-02-21  Antoine Mairesse  <antoine.mairesse@free.fr>
 
         * added proportional-integral controller for heaters

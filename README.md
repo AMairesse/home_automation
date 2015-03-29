@@ -120,4 +120,7 @@ Software :
   * django rest-framework
   * highcharts.js (provided in the repository for convenience)
   * jquery.js (provided in the repository for convenience)
+  * jquery-ui.js (provided in the repository for convenience)
+  * moment.js (provided in the repository for convenience)
+  * jquery-ui-daterangepicker.js (provided in the repository for convenience)
   * gunicorn
