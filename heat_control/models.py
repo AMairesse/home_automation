@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from datetime import datetime, timedelta
 from decimal import *
 
@@ -105,23 +106,17 @@ class Heater(models.Model):
         previous_state = self.get_previous_state()
         for sensor in sensors:
             # Calculate the integral ratio from the last half-hour
-            #TODO : should be done with the average temperature for the period
             now = datetime.now()
-            if (now.minute >= 30):
-                reference_time = now.replace(minute = 30, second = 0, microsecond = 0)
-            else:
-                reference_time = now.replace(minute = 0, second = 0, microsecond = 0)
-            previous_temperature_data = sensor.get_last_temperature_from_date(reference_time)
-            # if there was no temperature in the last 1 hour then we should take the last one no matter what
+            reference_time = now - timedelta(minutes=30)
+            avg = Temperature.objects.all().filter(sensor = sensor).filter(date__gte=reference_time).filter(date__lte=now).aggregate(Avg('offseted_temp'))['offseted_temp__avg']
+            # if there was no temperature in the last 30 minutes then we should take the last one no matter what
             # if there is no temperature at all then get to the next sensor
-            if (previous_temperature_data['temp'] == None):
+            if (avg == None):
                 previous_temperature = sensor.get_last_temperature()['temp']
                 if (previous_temperature == None):
                     continue
-            elif (previous_temperature_data['date'] < (now - timedelta(hours=1))):
-                previous_temperature = sensor.get_last_temperature()['temp']
             else:
-                previous_temperature = previous_temperature_data['temp']
+                previous_temperature = Decimal(avg)
             active_rule = sensor.ruleset.get_active_rule()
             wanted_temp = active_rule.temp
             I_ratio = self.I_ratio(previous_temperature, wanted_temp)
