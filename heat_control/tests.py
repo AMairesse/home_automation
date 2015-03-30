@@ -47,7 +47,7 @@ class HeaterHysteresisTestCase(TestCase):
     def test_offset(self):
         heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 10)
         Temperature.objects.create(sensor= sensor, date= date, temp= 10)
         self.assertEqual(sensor.get_last_temperature()['temp'], 9)
@@ -55,7 +55,7 @@ class HeaterHysteresisTestCase(TestCase):
     def test_heater_on(self):
         heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 5)
         # offset is set to -1 so real temperature will be 19 which should activate the heater
         Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.9))
@@ -64,7 +64,7 @@ class HeaterHysteresisTestCase(TestCase):
     def test_heater_off(self):
         heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 3)
         # offset is set to -1 so real temperature will be 20 which should stop the heater
         Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(21))
@@ -106,7 +106,7 @@ class HeaterProportionalTestCase(TestCase):
     def test_get_last_temperature_from_date(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 30)
         temp = Temperature.objects.create(sensor= sensor, date= date, temp= 18)
         self.assertEqual(sensor.get_last_temperature_from_date(now)['temp'], 18)
@@ -135,19 +135,43 @@ class HeaterProportionalTestCase(TestCase):
         heater = Heater.objects.get(name="Test_heater2")
         self.assertEqual(heater.P_ratio(20, 20), 0)
 
-    def test_heater_on(self):
+    def test_heater_full_on(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 30)
         Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(18))
         self.assertEqual(heater.get_heater_state(), True)
 
-    def test_heater_off(self):
+    def test_heater_full_off(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
-        now = datetime.now().replace(tzinfo=utc)
+        now = datetime.now(utc)
         date = now - timedelta(minutes = 30)
         Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(21))
+        self.assertEqual(heater.get_heater_state(), False)
+
+    def test_heater_partial_on(self):
+        heater = Heater.objects.get(name="Test_heater2")
+        sensor = Sensor.objects.get(name="Test_sensor2")
+        now = datetime.now(utc)
+        date = now - timedelta(minutes = 30)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(20.2))
+        date = now - timedelta(minutes = 20)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.8))
+        date = now - timedelta(minutes = 10)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.5))
+        self.assertEqual(heater.get_heater_state(), True)
+
+    def test_heater_partial_off(self):
+        heater = Heater.objects.get(name="Test_heater2")
+        sensor = Sensor.objects.get(name="Test_sensor2")
+        now = datetime.now(utc)
+        date = now - timedelta(minutes = 30)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.5))
+        date = now - timedelta(minutes = 20)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.8))
+        date = now - timedelta(minutes = 10)
+        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(20.2))
         self.assertEqual(heater.get_heater_state(), False)
 

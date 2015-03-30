@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Avg
 from datetime import datetime, timedelta
+from django.utils.timezone import utc
 from decimal import *
 
 SENSOR_TYPE = (('Default', 'Default'),('ZigBee', 'ZigBee'))
@@ -106,7 +107,7 @@ class Heater(models.Model):
         previous_state = self.get_previous_state()
         for sensor in sensors:
             # Calculate the integral ratio from the last half-hour
-            now = datetime.now()
+            now = datetime.now(utc)
             reference_time = now - timedelta(minutes=30)
             avg = Temperature.objects.all().filter(sensor = sensor).filter(date__gte=reference_time).filter(date__lte=now).aggregate(Avg('offseted_temp'))['offseted_temp__avg']
             # if there was no temperature in the last 30 minutes then we should take the last one no matter what
@@ -220,7 +221,7 @@ class Sensor(models.Model):
 
     def get_last_temperature_from_date(self, maxtime):
         try:
-            last_temperature = Temperature.objects.all().filter(sensor = self.id).filter(date <= maxtime).latest('date')
+            last_temperature = Temperature.objects.all().filter(sensor = self.id).filter(date__lte = maxtime).latest('date')
             temp = last_temperature.offseted_temp
             date = last_temperature.date
         except:
