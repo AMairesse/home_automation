@@ -108,8 +108,8 @@ class HeaterProportionalTestCase(TestCase):
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now().replace(tzinfo=utc)
         date = now - timedelta(minutes = 30)
-        Temperature.objects.create(sensor= sensor, date= date, temp= 18)
-        self.assertEqual(sensor.get_last_temperature_from_date(date)['temp'], 18)
+        temp = Temperature.objects.create(sensor= sensor, date= date, temp= 18)
+        self.assertEqual(sensor.get_last_temperature_from_date(now)['temp'], 18)
 
     def test_heater_I_ratio_full(self):
         heater = Heater.objects.get(name="Test_heater2")

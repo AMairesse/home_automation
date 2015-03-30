@@ -110,8 +110,10 @@ def heater_poweron_list(heater, date_min, date_max):
         previous_date = temp_history.date
     # if the last element is true the we should add to the list until date_max
     # Warning : this is a query set, negative indexing is not supported
-    if (history[history.count()-1].state == True):
-        result.append([history[-1].date, date_max])
+    if (history.count() > 0):
+        last_element = history[history.count()-1]
+        if (last_element.state == True):
+            result.append([last_element.date, date_max])
     return result
 
 def index(request):

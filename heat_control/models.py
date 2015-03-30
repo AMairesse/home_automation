@@ -125,12 +125,19 @@ class Heater(models.Model):
             actual_temperature = sensor.get_last_temperature()['temp']
             P_ratio = self.P_ratio(actual_temperature, wanted_temp)
 
-            # Get the working time's end
-            working_minutes = int(min(1,(P_ratio + I_ratio)) * 30)
-            end_working_time = reference_time + timedelta(minutes = working_minutes)
+            # Get the needed working time
+            needed_working_minutes = int(min(1,(P_ratio + I_ratio)) * 30)
             
-            # If it should still be working return True, else we move to the next sensor
-            if (now <= end_working_time):
+            # Get the real working time for the last 30 minutes
+            working_time_list = self.get_poweron_list(reference_time, now)
+            total_time = timedelta(seconds=0)
+            for [start, end] in working_time_list:
+                total_time = total_time + (end - start)
+                
+            real_working_minutes = int(total_time.total_seconds() / 60)
+            
+            # If should be working if there is more than 3 mn left
+            if ((needed_working_minutes - real_working_minutes) > 3):
                 return True
         return False
 
@@ -155,6 +162,23 @@ class Heater(models.Model):
             state = None
             date = None
         return {'state':state, 'date':date}
+
+    def get_poweron_list(self, date_min, date_max):
+        history = Heater_history.objects.all().filter(heater = self.id).filter(date__gte=date_min).filter(date__lte=date_max)
+        result = []
+        previous_date = date_min
+        # Build a list of tuples when the heater was on
+        for temp_history in history:
+            if (temp_history.state == False):
+                result.append([previous_date, temp_history.date])
+            previous_date = temp_history.date
+        # if the last element is true the we should add to the list until date_max
+        # Warning : this is a query set, negative indexing is not supported
+        if (history.count() > 0):
+            last_element = history[history.count()-1]
+            if (last_element.state == True):
+                result.append([last_element.date, date_max])
+        return result
 
     def __unicode__(self):
         return self.name + ' (' + self.hostname + ')'
