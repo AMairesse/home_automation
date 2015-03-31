@@ -9,7 +9,8 @@
 	<meta http-equiv="expires" content="0">
 	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
 	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
-
+	<link href="/static/select-style.css" rel="stylesheet" type="text/css" media="all" />
+	
 	<link href="/static/jquery-ui.min.css" rel="stylesheet" type="text/css" media="all" />
 	<link href="/static/jquery.comiseo.daterangepicker.css" rel="stylesheet" type="text/css" media="all" />
     <script src="/static/jquery.js"></script>
@@ -55,11 +56,12 @@
 			    yearEnd = range.end.getFullYear()
 			    monthEnd = range.end.getMonth() + 1
 			    dayEnd = range.end.getDate()
-    			document.all.average_temp.src="/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
+    			document.all.runtime_graph.src="/hc/runtime_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/";
                },
             });
         });
     </script>
+
 </head>
 
 <body>
@@ -70,26 +72,29 @@
 	</div>
 	<div id="menu">
 		<ul>
-			<li class="current_page_item"><a href="#" accesskey="1" title="">Homepage</a></li>
+			<li><a href="/hc" accesskey="1" title="">Homepage</a></li>
 			<li><a href="/hc/ruleset" accesskey="2" title="">Programmation</a></li>
-			<li><a href="/hc/stats" accesskey="3" title="">Statistiques</a></li>
+			<li class="current_page_item"><a href="#" accesskey="3" title="">Statistiques</a></li>
 		</ul>
 	</div>
 </div>
+
 <div id="welcome" class="wrapper-style1">
 	<div class="title">
-		<h2>Temp&eacute;rature</h2>
-		<span class="byline">Temp&eacute;rature par pièces</span> </div>
+		<h2>Statistiques</h2>
+		<span class="byline">Statistiques de fonctionnement</span> </div>
 </div>
+
 <div id="page">
 	<div id="content" class="container">
 		<script>
-		document.write("<iframe id=\"average_temp\" src=/hc/day_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/ frameborder=\"0\" border=\"0\" height=\"500\" width=\"100%\"></iframe>")
+		document.write("<iframe id=\"runtime_graph\" src=/hc/runtime_graph/" + yearStart + "/" + monthStart + "/" + dayStart + "/" + yearEnd + "/" + monthEnd + "/" + dayEnd + "/ frameborder=\"0\" border=\"0\" height=\"500\" width=\"100%\"></iframe>")
 		</script>
         <input id="date-range" name="date_start">
 	</div>
 	<div id="sidebar"></div>
 </div>
+
 <div id="footer" class="container">
 	<p>Design by <a href="http://templated.co" rel="nofollow">TEMPLATED</a>.</p>
 </div>

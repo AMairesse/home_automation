@@ -8,21 +8,18 @@
 	<meta http-equiv="content-style-type" content="text/css">
 	<meta http-equiv="expires" content="0">
 	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
-	<link href="/static/graph-style.css" rel="stylesheet" type="text/css" media="all" />
-	
+	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/select-style.css" rel="stylesheet" type="text/css" media="all" />
+
     <script src="/static/moment.js"></script>
     <script src="/static/jquery.js"></script>
     <script src="/static/highcharts.js"></script>
-    {% if chart_series %}
+    {% if runtime_series %}
         <script>
-		    var dt = new Date()
-       		timezone_offset = dt.getTimezoneOffset()
-       		date_min = moment('{{ date_min|date:"c" }}').toDate()
-       		date_max = moment('{{ date_max|date:"c" }}').toDate()
             $(function () { 
                 $('#container').highcharts({
                     title: {
-                        text: "Temperature - du " + date_min.toLocaleDateString() + " au " + date_max.toLocaleDateString()
+                        text: "Dur&eacute;e de fonctionnement du chauffage par jour"
                     },
                     chart: {
                         backgroundColor:'transparent',
@@ -37,22 +34,11 @@
                         title: {
                             text: 'Date'
                         },
-                        plotBands: [
-                            {% for start, end in poweron_series %}
-                                {
-                                color: 'orange',
-                                from: moment('{{ start|date:"c" }}').subtract(timezone_offset, 'minutes').toDate(),
-                                to: moment('{{ end|date:"c" }}').subtract(timezone_offset, 'minutes').toDate()
-                                },
-                            {% endfor %}
-                        ],
                     },
                     yAxis: {
                         title: {
-                            text: 'Temperature'
+                            text: 'Temps de fonctionnement'
                         },
-                        min:10,
-                        max:25,
                         plotLines: [{
                             value: 0,
                             width: 1,
@@ -63,7 +49,7 @@
                         selected: 1
                     },
                     tooltip: {
-                        valueSuffix: '°C'
+                        valueSuffix: 'mn'
                     },
                     legend: {
                         layout: 'vertical',
@@ -71,16 +57,11 @@
                         verticalAlign: 'middle',
                         borderWidth: 0
                     },
-                    series: [
-                        {% for key,value in chart_series.items %}
-                            {
-                            pointInterval: 3600 * 1000,
-                            name: '{{key}}',
-                            pointStart: Date.UTC({{year}}, {{month}}-1, {{day}}) - (timezone_offset * 60 * 1000),
-                            data : {{value}}
-                            },
-                        {% endfor %}
-                        ]
+                    series: [{data :
+                            {% for date,runtime in runtime_series %}
+                                [new Date('{{ date|date:"c" }}'),{{runtime}}],
+                            {% endfor %}
+                            }]
                 });
             });
         </script>
@@ -90,4 +71,5 @@
 <body>
 <div id='container' class="styled-graph"></div>
 </body>
+
 </html>

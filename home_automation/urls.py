@@ -25,6 +25,8 @@ urlpatterns = patterns('',
     url(r'^hc/$', 'heat_control.views.index'),
     url(r'^hc/ruleset$', 'heat_control.views.ruleset'),
     url(r'^hc/day_graph/(\d{4})/(\d+)/(\d+)/(\d{4})/(\d+)/(\d+)/$', 'heat_control.views.day_graph'),
+    url(r'^hc/stats$', 'heat_control.views.stats'),
+    url(r'^hc/runtime_graph/(\d{4})/(\d+)/(\d+)/(\d{4})/(\d+)/(\d+)/$', 'heat_control.views.runtime_graph'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     #url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

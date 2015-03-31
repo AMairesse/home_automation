@@ -169,6 +169,44 @@ def day_graph(request, year_start, month_start, day_start, year_end, month_end, 
     c = Context(context_data)
     return HttpResponse(t.render(c), content_type="text/html")
 
+def stats(request):
+    # Init template
+    t = loader.get_template('heat_control/stats.html')
+    context_data = {}
+    c = Context(context_data)
+    return HttpResponse(t.render(c), content_type="text/html")
+
+def runtime_graph(request, year_start, month_start, day_start, year_end, month_end, day_end):
+    # Init template
+    t = loader.get_template('heat_control/runtime_graph.html')
+    context_data = {}
+    # Get heaters list
+    heater_list = Heater.objects.all().filter(status = True).order_by('-hostname')[:5]
+    # Get chart data
+    try:
+        date_min = datetime(int(year_start), int(month_start), int(day_start), 0, 0, 0).replace(tzinfo=utc)
+        date_max = datetime(int(year_end), int(month_end), int(day_end), 0, 0, 0).replace(tzinfo=utc)
+    except:
+        raise Http404
+    # Prepare to iterate on each day
+    delta = date_max - date_min
+    # Get the running time for each day
+    runtime_series = []
+    for day in range(delta.days + 1):
+        runtime_day = date_min + timedelta(days=day)
+        total_runtime = 0
+        # Get the running time for each heater and sum it
+        for heater in heater_list:
+            # TODO : replace 0 by the calculated runtime for this heater for the given day
+            runtime = 0
+            total_runtime = total_runtime + runtime
+        runtime_series.extend([runtime_day, total_runtime])
+    
+    context_data.update({'runtime_series': runtime_series})
+    # Send response
+    c = Context(context_data)
+    return HttpResponse(t.render(c), content_type="text/html")
+
 
 
 
