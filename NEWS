@@ -1,4 +1,11 @@
 ====================
+home_automation v0.5
+====================
+
+ * added support for enOcean temperature sensors (hc-client v0.9 needed)
+
+
+====================
 home_automation v0.4
 ====================
 

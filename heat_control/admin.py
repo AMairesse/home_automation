@@ -7,7 +7,7 @@ class RuleInline(admin.TabularInline):
     extra = 0
 
 class SensorAdmin(admin.ModelAdmin):
-    fields = ['type', 'hostname', 'name', 'address', 'freq', 'status', 'gpio', 'offset', 'room_name', 'ruleset', 'heater']
+    fields = ['type', 'hostname', 'name', 'address', 'freq', 'status', 'gpio', 'rorg', 'rorg_func', 'rorg_type', 'offset', 'room_name', 'ruleset', 'heater']
     list_display = ('hostname', 'name', 'type', 'freq', 'room_name')
 
 class HeaterAdmin(admin.ModelAdmin):

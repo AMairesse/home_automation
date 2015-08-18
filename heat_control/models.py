@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from decimal import *
 
-SENSOR_TYPE = (('Default', 'Default'),('ZigBee', 'ZigBee'))
+SENSOR_TYPE = (('W1', 'W1'),('ZigBee', 'ZigBee'),('enOcean', 'enOcean'))
 HEATER_TYPE = (('GPIO', 'GPIO'),('ZigBee', 'ZigBee'))
 HEATER_CONTROLLER = (('HY', 'Hysteresis'),('PI', 'Proportional-Integral'))
 RULESET_TYPE = (('Minimal', 'Minimal temperature'),('Maximal', 'Maximal temperature'))
@@ -204,6 +204,9 @@ class Sensor(models.Model):
     freq = models.PositiveIntegerField()
     status = models.BooleanField()
     gpio = models.PositiveSmallIntegerField(null=True, blank=True)
+    rorg = models.PositiveSmallIntegerField(null=True, blank=True)
+    rorg_func = models.PositiveSmallIntegerField(null=True, blank=True)
+    rorg_type = models.PositiveSmallIntegerField(null=True, blank=True)
     offset = models.DecimalField(max_digits=4, decimal_places=3, blank=True, default=0.0)
     room_name = models.CharField(max_length=50)
     ruleset = models.ForeignKey(Ruleset, related_name='sensors', null=True, blank=True)

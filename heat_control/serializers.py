@@ -6,6 +6,9 @@ class SensorSerializer(serializers.HyperlinkedModelSerializer):
     type = serializers.ChoiceField(choices=SENSOR_TYPE)
     id = serializers.HyperlinkedIdentityField(view_name='sensor-detail')
     gpio = serializers.IntegerField(required=False)
+    rorg = serializers.IntegerField(required=False)
+    rorg_func = serializers.IntegerField(required=False)
+    rorg_type = serializers.IntegerField(required=False)
     last_temperature = serializers.SerializerMethodField('get_last_temperature')
     offset = serializers.DecimalField(required=False)
     ruleset = serializers.HyperlinkedRelatedField(view_name='ruleset-detail', required=False)
@@ -13,7 +16,7 @@ class SensorSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Sensor
-        fields = ('id', 'hostname', 'name', 'address', 'type', 'freq', 'status', 'gpio', 'offset', 'room_name', 'ruleset', 'heater', 'last_temperature')
+        fields = ('id', 'hostname', 'name', 'address', 'type', 'freq', 'status', 'gpio', 'rorg', 'rorg_func', 'rorg_type', 'offset', 'room_name', 'ruleset', 'heater', 'last_temperature')
 
     def get_last_temperature(self, obj):
         last_temperature = obj.get_last_temperature()

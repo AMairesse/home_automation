@@ -1,3 +1,7 @@
+2015-08-18  Antoine Mairesse  <antoine.mairesse@free.fr>
+
+        * Added support for enOcean modules (hc-client v0.9)
+
 2015-03-29  Antoine Mairesse  <antoine.mairesse@free.fr>
 
 	* Added a date picker (using jQueryUI and jquery-ui-daterangepicker)
