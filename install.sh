@@ -19,9 +19,12 @@ cp manage.py $INSTALL_PATH/$DJANGO_PROJECT/
 # install static files
 python manage.py collectstatic --noinput
 
-# change owner
+# change owner and add read permission
 chown -R www-data:www-data $INSTALL_PATH/$DJANGO_PROJECT/
 chown -R www-data:www-data $INSTALL_PATH/static/
+
+# Set templates to be world readable in each application
+chmod +r $INSTALL_PATH/$DJANGO_PROJECT/django_templates/*/*.html
 
 # disable DEBUG mode
 sed -i -e 's/^DEBUG\ =\ True$/DEBUG\ =\ False/' $INSTALL_PATH/$DJANGO_PROJECT/home_automation/settings.py

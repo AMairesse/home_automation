@@ -1,5 +1,7 @@
-from django.template import Context, loader
+from django.template import Context, RequestContext, loader
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect
 from heat_control.models import Sensor, Temperature, Heater, Heater_history, Ruleset, Rule
 from django.db.models import Avg
 from datetime import datetime, timedelta
@@ -123,18 +125,61 @@ def index(request):
     c = Context(context_data)
     return HttpResponse(t.render(c), content_type="text/html")
 
+def login_user(request):
+    # Init template
+    t = loader.get_template('heat_control/login.html')
+    context_data = {}
+
+    state = ""
+    username = password = next = ''
+    if request.POST:
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        next = request.GET.get('next', '')
+
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('https://www.famille-mairesse.fr%s' % (next))
+            else:
+                state = "Your account is not active, please contact the site admin."
+        else:
+            state = "Your username and/or password were incorrect."
+
+    # Send response
+    c = RequestContext(request, context_data)
+    return HttpResponse(t.render(c), content_type="text/html")
+
 def ruleset(request):
     # Init template
     t = loader.get_template('heat_control/ruleset.html')
-    context_data = {}
+    context_data = {'error': False}
     # Get sensors list
     sensor_list = Sensor.objects.all().filter(status = True).order_by('-hostname')[:5]
     context_data.update({'sensor_list': sensor_list})
+    # If we have a POST then update
+    if request.POST:
+        if request.user.is_authenticated():
+            # Update database from POST values
+            for sensor in sensor_list:
+                sensor_id = str(sensor.id)
+                ruleset_id = request.POST.get(sensor_id)
+                try:
+                    ruleset = Ruleset.objects.get(id=ruleset_id)
+                    sensor.ruleset = ruleset
+                except:
+                    sensor.ruleset = None
+                finally:
+                    sensor.save()                
+        else:
+            # User is not authenticated, set an error message
+            context_data.update({'error': True})
     # Get ruleset list
     ruleset_list = Ruleset.objects.all().order_by('-name')
     context_data.update({'ruleset_list': ruleset_list})
     # Send response
-    c = Context(context_data)
+    c = RequestContext(request, context_data)
     return HttpResponse(t.render(c), content_type="text/html")
 
 def day_graph(request, year_start, month_start, day_start, year_end, month_end, day_end):
@@ -173,8 +218,11 @@ def stats(request):
     # Init template
     t = loader.get_template('heat_control/stats.html')
     context_data = {}
-    c = Context(context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    c = RequestContext(request, context_data)
+    if not request.user.is_authenticated():
+        return redirect('https://www.famille-mairesse.fr/hc/login?next=%s' % (request.path))
+    else:
+        return HttpResponse(t.render(c), content_type="text/html")    
 
 def runtime_graph(request, year_start, month_start, day_start, year_end, month_end, day_end):
     # Init template

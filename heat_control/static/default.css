@@ -562,7 +562,7 @@ hr
 	.button
 	{
 		display: inline-block;
-		margin-top: 2em;
+		/* margin-top: 2em;*/
 		padding: 1em 3em;
 		background: #C4376B;
 		border-radius: 7px;

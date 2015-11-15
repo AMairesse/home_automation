@@ -10,24 +10,9 @@
 	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
 	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
 	<link href="/static/select-style.css" rel="stylesheet" type="text/css" media="all" />
-	<script>
-		var graphDate = new Date()
-		var month = graphDate.getMonth() + 1
-		var day = graphDate.getDate()
-		var year = graphDate.getFullYear()
-		function change_chart(delta)
-			{
-			graphDate.setDate(graphDate.getDate()+delta);
-			month = graphDate.getMonth() + 1
-			day = graphDate.getDate()
-			year = graphDate.getFullYear()
-			document.all.average_temp.src="hc/day_graph/" + year + "/" + month + "/" + day + "/";
-			}
-	</script>
 </head>
 
 <body>
-
 <div id="header" class="container">
 	<div id="logo">
 		<h1><a href="#">Chauffage</a></h1>
@@ -48,13 +33,21 @@
 <div id="page">
 	<div id="content" class="container">
 		<table id="rounded-corner" summary="Règles de température par pièce">
+			<form action="/hc/ruleset" method="post">
+			{% csrf_token %}
 			<thead>
 				<tr><th scope="col" class="rounded-company">Pièce</th><th scope="col" class="rounded-q4">Règle applicable</th></tr>
 			</thead>
 			<tfoot>
 				<tr>
-	        	<td colspan="1" class="rounded-foot-left"><em>Il faut être connecté pour modifier les règles</em></td>
-	        	<td class="rounded-foot-right">&nbsp;</td>
+	        	<td colspan="1" class="rounded-foot-left"></td>
+	        	<td class="rounded-foot-right">&nbsp;
+    				{% if user.is_authenticated %}
+    				    <div align="right"><input type="submit" class="button" value="Enregistrer" /></div>
+    				{% else %}
+    				    <div>Il faut être <a href="/hc/login?next=/hc/ruleset">connect&eacute;</a> pour modifier les règles</div>
+    				{% endif %}
+	        	</td>
 				</tr>
 			</tfoot>
 			<tbody>
@@ -62,18 +55,25 @@
 				{% for sensor in sensor_list %}
 					<tr>
 						<td>{{ sensor.room_name }}</td>
-						<td><div class="styled-select"><select name="Règle">
-						{% for ruleset in ruleset_list %}
-							<option value="{{ ruleset.id }}" {% if sensor.ruleset = ruleset %}selected{% endif %}>{{ ruleset.name }}</option>
-						{% endfor %}
-						{% if sensor.ruleset == None %}<option value="" selected> </option>{% endif %}
-						</select></div></td>
+						<td><div class="styled-select">
+					    {% if user.is_authenticated %}
+                    	    <select name="{{ sensor.id }}">
+                    	{% else %}
+                    	    <select disabled name="{{ sensor.id }}">
+                    	{% endif %}
+                	        {% for ruleset in ruleset_list %}
+						        <option value="{{ ruleset.id }}" {% if sensor.ruleset = ruleset %}selected{% endif %}>{{ ruleset.name }}</option>
+					        {% endfor %}
+					        <option value="" {% if sensor.ruleset == None %}selected{% endif %}> </option>
+					    </select>
+						</div></td>
 					</tr>
 				{% endfor %}
 			{% else %}
 				<tr><td colspan="2"><em>Pas de capteur détecté</em></td></tr>
 			{% endif %}
 			</tbody>
+			</form>
 		</table>
 	</div>
 	<div id="sidebar"></div>

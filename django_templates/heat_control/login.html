@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chauffage</title>
+	<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<meta http-equiv="expires" content="0">
+	<link href="/static/default.css" rel="stylesheet" type="text/css" media="all" />
+	<link href="/static/table-style.css" rel="stylesheet" type="text/css" media="all" />
+</head>
+
+<body>
+
+<div id="header" class="container">
+	<div id="logo">
+		<h1><a href="#">Chauffage</a></h1>
+	</div>
+	<div id="menu">
+		<ul>
+			<li><a href="/hc/index" accesskey="1" title="">Homepage</a></li>
+			<li><a href="/hc/ruleset" accesskey="2" title="">Programmation</a></li>
+			<li><a href="/hc/stats" accesskey="3" title="">Statistiques</a></li>
+		</ul>
+	</div>
+</div>
+<div id="welcome" class="wrapper-style1">
+	<div class="title">
+		<h2>Connexion</h2>
+</div>
+<div id="page">
+	<div id="content" class="container">
+	    <form action="/hc/login" method="post">
+	        {% csrf_token %}
+		    {% if next %}
+		    <input type="hidden" name="next" value="{{ next }}" />
+		    {% endif %}
+		    <div align="center">Nom d&#39;utilisateur : <input type="text" name="username" value="{{ username}}" /></div>
+		    <div align="center">Mot de passe : <input type="password" name="password" value="" /></div>
+		    <div align="center"><input type="submit" class="button" value="Se connecter" /></div>
+	    </form>
+	</div>
+	<div id="sidebar"></div>
+</div>
+<div id="footer" class="container">
+	<p>Design by <a href="http://templated.co" rel="nofollow">TEMPLATED</a>.</p>
+</div>
+</body>
+</html>
