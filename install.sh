@@ -21,7 +21,7 @@ python manage.py collectstatic --noinput
 
 # change owner and add read permission
 chown -R www-data:www-data ${INSTALL_PATH}/${DJANGO_PROJECT}/
-chown -R www-data:www-data $(INSTALL_PATH)/static/
+chown -R www-data:www-data ${INSTALL_PATH}/static/
 
 # Set templates to be world readable in each application
 chmod +r ${INSTALL_PATH}/${DJANGO_PROJECT}/django_templates/*/*.html

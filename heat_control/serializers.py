@@ -12,8 +12,10 @@ class SensorSerializer(serializers.HyperlinkedModelSerializer):
     rorg_type = serializers.IntegerField(required=False)
     last_temperature = serializers.SerializerMethodField()
     offset = serializers.DecimalField(max_digits=5, decimal_places=2, required=False)
-    ruleset = serializers.HyperlinkedRelatedField(view_name='ruleset-detail', required=False, read_only=True)
-    heater = serializers.HyperlinkedRelatedField(view_name='heater-detail', required=False, read_only=True)
+    ruleset = serializers.HyperlinkedRelatedField(view_name='ruleset-detail',
+                                                  required=False, queryset=Ruleset.objects.all())
+    heater = serializers.HyperlinkedRelatedField(view_name='heater-detail',
+                                                 required=False, queryset=Heater.objects.all())
 
     class Meta:
         model = Sensor
@@ -27,7 +29,7 @@ class SensorSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TemperatureSerializer(serializers.HyperlinkedModelSerializer):
-    sensor = serializers.HyperlinkedRelatedField(view_name='sensor-detail', read_only=True)
+    sensor = serializers.HyperlinkedRelatedField(view_name='sensor-detail', queryset=Sensor.objects.all())
     offseted_temp = serializers.DecimalField(max_digits=5, decimal_places=2, required=False)
 
     class Meta:
@@ -62,7 +64,7 @@ class HeaterSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class HeaterHistorySerializer(serializers.HyperlinkedModelSerializer):
-    heater = serializers.HyperlinkedRelatedField(view_name='heater-detail', read_only=True)
+    heater = serializers.HyperlinkedRelatedField(view_name='heater-detail', queryset=Heater.objects.all())
 
     class Meta:
         model = Heater_history
@@ -71,7 +73,7 @@ class HeaterHistorySerializer(serializers.HyperlinkedModelSerializer):
 
 class RuleSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.HyperlinkedIdentityField(view_name='rule-detail')
-    ruleset = serializers.HyperlinkedRelatedField(view_name='ruleset-detail', read_only=True)
+    ruleset = serializers.HyperlinkedRelatedField(view_name='ruleset-detail', queryset=Ruleset.objects.all())
 
     class Meta:
         model = Rule
