@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-from rest_framework import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 from heat_control import views
 
@@ -7,7 +6,8 @@ from heat_control import views
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # urls to API
     url(r'^hc/api/sensors/$', views.SensorList.as_view(), name="sensor-list"),
     url(r'^hc/api/sensors/(?P<pk>[0-9]+)/$', views.SensorDetail.as_view(), name="sensor-detail"),
@@ -30,7 +30,7 @@ urlpatterns = patterns('',
     url(r'^hc/runtime_graph/(\d{4})/(\d+)/(\d+)/(\d{4})/(\d+)/(\d+)/$', 'heat_control.views.runtime_graph'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
-    #url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
     url(r'^hc/admin/', include(admin.site.urls)),

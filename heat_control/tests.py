@@ -11,104 +11,104 @@ from heat_control.models import Sensor, Heater, Ruleset, Rule, Temperature
 from datetime import datetime, timedelta
 from decimal import *
 
+
 class HeaterHysteresisTestCase(TestCase):
     def setUp(self):
-        Ruleset.objects.create(id= "1", name= "Test_ruleset1", type= "Minimal")
+        Ruleset.objects.create(id="1", name="Test_ruleset1", type="Minimal")
         ruleset = Ruleset.objects.get(name="Test_ruleset1")
-        Rule.objects.create(id= "1", ruleset= ruleset, weekday= "1", time= "00:00:00", temp= 20)
-        Heater.objects.create(  id= "1",
-                                hostname= "test",
-                                name= "Test_heater1",
-                                address= "ABCD",
-                                type= "ZigBee",
-                                controller = "HY",
-                                freq= 120,
-                                status = True,
-                                gpio= 1,
-                                mode= "Low",
-                                description= "Test",
-                                hysteresis= 1
-                                )
+        Rule.objects.create(id="1", ruleset=ruleset, weekday="1", time="00:00:00", temp=20)
+        Heater.objects.create(id="1",
+                              hostname="test",
+                              name="Test_heater1",
+                              address="ABCD",
+                              type="ZigBee",
+                              controller="HY",
+                              freq=120,
+                              status=True,
+                              gpio=1,
+                              mode="Low",
+                              description="Test",
+                              hysteresis=1
+                              )
         heater = Heater.objects.get(name="Test_heater1")
-        Sensor.objects.create(  id= "1",
-                                hostname= "test",
-                                name= "Test_sensor1",
-                                address= "ABCD",
-                                type= "ZigBee",
-                                freq= 600,
-                                status = True,
-                                gpio= 1,
-                                offset= "-1.000",
-                                room_name= "Test",
-                                ruleset= ruleset,
-                                heater= heater
-                                )
+        Sensor.objects.create(id="1",
+                              hostname="test",
+                              name="Test_sensor1",
+                              address="ABCD",
+                              type="ZigBee",
+                              freq=600,
+                              status=True,
+                              gpio=1,
+                              offset="-1.000",
+                              room_name="Test",
+                              ruleset=ruleset,
+                              heater=heater
+                              )
 
     def test_offset(self):
-        heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 10)
-        Temperature.objects.create(sensor= sensor, date= date, temp= 10)
+        date = now - timedelta(minutes=10)
+        Temperature.objects.create(sensor=sensor, date=date, temp=10)
         self.assertEqual(sensor.get_last_temperature()['temp'], 9)
 
     def test_heater_on(self):
         heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 5)
+        date = now - timedelta(minutes=5)
         # offset is set to -1 so real temperature will be 19 which should activate the heater
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.9))
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(19.9))
         self.assertEqual(heater.get_heater_state(), True)
 
     def test_heater_off(self):
         heater = Heater.objects.get(name="Test_heater1")
         sensor = Sensor.objects.get(name="Test_sensor1")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 3)
+        date = now - timedelta(minutes=3)
         # offset is set to -1 so real temperature will be 20 which should stop the heater
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(21))
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(21))
         self.assertEqual(heater.get_heater_state(), False)
+
 
 class HeaterProportionalTestCase(TestCase):
     def setUp(self):
-        Ruleset.objects.create(id= "2", name= "Test_ruleset2", type= "Minimal")
+        Ruleset.objects.create(id="2", name="Test_ruleset2", type="Minimal")
         ruleset = Ruleset.objects.get(name="Test_ruleset2")
-        Rule.objects.create(id= "2", ruleset= ruleset, weekday= "1", time= "00:00:00", temp= 20)
-        Heater.objects.create(  id= "2",
-                                hostname= "test",
-                                name= "Test_heater2",
-                                address= "ABCD",
-                                type= "ZigBee",
-                                controller = "PI",
-                                freq= 120,
-                                status = True,
-                                gpio= 1,
-                                mode= "Low",
-                                description= "Test",
-                                hysteresis= 1
-                                )
+        Rule.objects.create(id="2", ruleset=ruleset, weekday="1", time="00:00:00", temp=20)
+        Heater.objects.create(id="2",
+                              hostname="test",
+                              name="Test_heater2",
+                              address="ABCD",
+                              type="ZigBee",
+                              controller="PI",
+                              freq=120,
+                              status=True,
+                              gpio=1,
+                              mode="Low",
+                              description="Test",
+                              hysteresis=1
+                              )
         heater = Heater.objects.get(name="Test_heater2")
-        Sensor.objects.create(  id= "2",
-                                hostname= "test",
-                                name= "Test_sensor2",
-                                address= "ABCD",
-                                type= "ZigBee",
-                                freq= 600,
-                                status = True,
-                                gpio= 1,
-                                offset= "0.000",
-                                room_name= "Test",
-                                ruleset= ruleset,
-                                heater= heater
-                                )
+        Sensor.objects.create(id="2",
+                              hostname="test",
+                              name="Test_sensor2",
+                              address="ABCD",
+                              type="ZigBee",
+                              freq=600,
+                              status=True,
+                              gpio=1,
+                              offset="0.000",
+                              room_name="Test",
+                              ruleset=ruleset,
+                              heater=heater
+                              )
 
     def test_get_last_temperature_from_date(self):
-        heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 30)
-        temp = Temperature.objects.create(sensor= sensor, date= date, temp= 18)
+        date = now - timedelta(minutes=30)
+        Temperature.objects.create(sensor=sensor, date=date, temp=18)
         self.assertEqual(sensor.get_last_temperature_from_date(now)['temp'], 18)
 
     def test_heater_I_ratio_full(self):
@@ -139,39 +139,38 @@ class HeaterProportionalTestCase(TestCase):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 30)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(18))
+        date = now - timedelta(minutes=30)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(18))
         self.assertEqual(heater.get_heater_state(), True)
 
     def test_heater_full_off(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 30)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(21))
+        date = now - timedelta(minutes=30)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(21))
         self.assertEqual(heater.get_heater_state(), False)
 
     def test_heater_partial_on(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 30)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(20.2))
-        date = now - timedelta(minutes = 20)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.8))
-        date = now - timedelta(minutes = 10)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.5))
+        date = now - timedelta(minutes=30)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(20.2))
+        date = now - timedelta(minutes=20)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(19.8))
+        date = now - timedelta(minutes=10)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(19.5))
         self.assertEqual(heater.get_heater_state(), True)
 
     def test_heater_partial_off(self):
         heater = Heater.objects.get(name="Test_heater2")
         sensor = Sensor.objects.get(name="Test_sensor2")
         now = datetime.now(utc)
-        date = now - timedelta(minutes = 30)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.5))
-        date = now - timedelta(minutes = 20)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(19.8))
-        date = now - timedelta(minutes = 10)
-        Temperature.objects.create(sensor= sensor, date= date, temp= Decimal(20.2))
+        date = now - timedelta(minutes=30)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(19.5))
+        date = now - timedelta(minutes=20)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(19.8))
+        date = now - timedelta(minutes=10)
+        Temperature.objects.create(sensor=sensor, date=date, temp=Decimal(20.2))
         self.assertEqual(heater.get_heater_state(), False)
-

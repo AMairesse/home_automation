@@ -4,12 +4,13 @@ from datetime import datetime, timedelta
 from django.utils.timezone import utc
 from decimal import *
 
-SENSOR_TYPE = (('W1', 'W1'),('ZigBee', 'ZigBee'),('enOcean', 'enOcean'))
-HEATER_TYPE = (('GPIO', 'GPIO'),('ZigBee', 'ZigBee'))
-HEATER_CONTROLLER = (('HY', 'Hysteresis'),('PI', 'Proportional-Integral'))
-RULESET_TYPE = (('Minimal', 'Minimal temperature'),('Maximal', 'Maximal temperature'))
-MODE = (('Low', 'Active low'),('High', 'Active High'))
-ISOWEEKDAY = {1:'monday', 2:'tuesday', 3:'wednesday', 4:'thursday', 5:'friday', 6:'saturday', 7:'sunday'}
+SENSOR_TYPE = (('W1', 'W1'), ('ZigBee', 'ZigBee'), ('enOcean', 'enOcean'))
+HEATER_TYPE = (('GPIO', 'GPIO'), ('ZigBee', 'ZigBee'))
+HEATER_CONTROLLER = (('HY', 'Hysteresis'), ('PI', 'Proportional-Integral'))
+RULESET_TYPE = (('Minimal', 'Minimal temperature'), ('Maximal', 'Maximal temperature'))
+MODE = (('Low', 'Active low'), ('High', 'Active High'))
+ISOWEEKDAY = {1: 'monday', 2: 'tuesday', 3: 'wednesday', 4: 'thursday', 5: 'friday', 6: 'saturday', 7: 'sunday'}
+
 
 class Ruleset(models.Model):
     name = models.CharField(max_length=50)
@@ -23,7 +24,8 @@ class Ruleset(models.Model):
             day = today - timedelta(days=i)
             day_of_week = day.isoweekday()
             try:
-                rule = Rule.objects.all().filter(ruleset = self).filter(weekday=day_of_week).filter(time__lte=day.time()).latest('time')
+                rule = Rule.objects.all().filter(ruleset=self).filter(weekday=day_of_week).\
+                                          filter(time__lte=day.time()).latest('time')
             except:
                 # If no rule found then try again
                 continue
@@ -44,12 +46,14 @@ class Rule(models.Model):
         return ISOWEEKDAY[self.weekday]
 
     def __unicode__(self):
-        return 'Starting ' + self.get_weekday_str() + ' at ' + str(self.time) + ' temperature is set to : ' + str(self.temp) + 'C'
+        return 'Starting ' + self.get_weekday_str() + ' at ' + str(self.time) +\
+               ' temperature is set to : ' + str(self.temp) + 'C'
+
 
 class Heater(models.Model):
     hostname = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
-    address = models.CharField(max_length=50,null=True, blank=True)
+    address = models.CharField(max_length=50, null=True, blank=True)
     type = models.CharField(max_length=10, choices=HEATER_TYPE)
     controller = models.CharField(max_length=3, choices=HEATER_CONTROLLER, default='HY')
     freq = models.PositiveIntegerField()
@@ -61,15 +65,15 @@ class Heater(models.Model):
 
     def get_previous_state(self):
         try:
-            previous_state = Heater_history.objects.all().filter(heater = self).latest('date').state
+            previous_state = Heater_history.objects.all().filter(heater=self).latest('date').state
         except:
             previous_state = False
         return previous_state
 
     def get_heater_state(self):
-        if (self.controller == 'HY'):
+        if self.controller == 'HY':
             return self.heater_state_hysteresis()
-        elif (self.controller == 'PI'):
+        elif self.controller == 'PI':
             return self.heater_state_PI()
         else:
             return False
@@ -78,14 +82,14 @@ class Heater(models.Model):
         # For each sensor linked to this heater,
         # check the active rule against the last temperature.
         # If at least one sensor request heating then we return 'True'
-        sensors = Sensor.objects.all().filter(heater = self)
+        sensors = Sensor.objects.all().filter(heater=self)
         previous_state = self.get_previous_state()
         for sensor in sensors:
             active_rule = sensor.ruleset.get_active_rule()
             # If there is no active rule then this sensor is inactive
-            if (active_rule == None):
+            if active_rule is None:
                 continue
-            if (previous_state == False):
+            if previous_state is False:
                 # If heater is off we should turn it on only if 
                 # temperature is below set point less hysteresis
                 wanted_temp = active_rule.temp - self.hysteresis
@@ -94,8 +98,8 @@ class Heater(models.Model):
                 # temperature is above set point more hysteresis
                 wanted_temp = active_rule.temp + self.hysteresis
             last_temperature = sensor.get_last_temperature()['temp']
-            if (last_temperature != None):
-                if (last_temperature < wanted_temp):
+            if last_temperature is not None:
+                if last_temperature < wanted_temp:
                     return True
         return False
 
@@ -103,18 +107,20 @@ class Heater(models.Model):
         # For each sensor linked to this heater,
         # check the active rule against the last half-hour temperature.
         # If at least one sensor request heating then we return 'True'
-        sensors = Sensor.objects.all().filter(heater = self)
+        sensors = Sensor.objects.all().filter(heater=self)
         previous_state = self.get_previous_state()
         for sensor in sensors:
             # Calculate the integral ratio from the last half-hour
             now = datetime.now(utc)
             reference_time = now - timedelta(minutes=30)
-            avg = Temperature.objects.all().filter(sensor = sensor).filter(date__gte=reference_time).filter(date__lte=now).aggregate(Avg('offseted_temp'))['offseted_temp__avg']
+            avg = Temperature.objects.all().filter(sensor=sensor)\
+                                           .filter(date__gte=reference_time)\
+                                           .filter(date__lte=now).aggregate(Avg('offseted_temp'))['offseted_temp__avg']
             # if there was no temperature in the last 30 minutes then we should take the last one no matter what
             # if there is no temperature at all then get to the next sensor
-            if (avg == None):
+            if avg is None:
                 previous_temperature = sensor.get_last_temperature()['temp']
-                if (previous_temperature == None):
+                if previous_temperature is None:
                     continue
             else:
                 previous_temperature = Decimal(avg)
@@ -138,51 +144,55 @@ class Heater(models.Model):
             real_working_minutes = int(total_time.total_seconds() / 60)
             
             # If should be working if there is more than 3 mn left
-            if ((needed_working_minutes - real_working_minutes) > 3):
+            if (needed_working_minutes - real_working_minutes) > 3:
                 return True
         return False
 
-    def I_ratio(self, temperature, wanted_temperature):
+    @staticmethod
+    def I_ratio(temperature, wanted_temperature):
         # For 2.5 degrees we want 100% working ratio
         # For 0 degree we want 0% working ratio
-        ratio = min(1,max(0,(Decimal('0.4') * (wanted_temperature - temperature))))
+        ratio = min(1, max(0, (Decimal('0.4') * (wanted_temperature - temperature))))
         return ratio
 
-    def P_ratio(self, temperature, wanted_temperature):
+    @staticmethod
+    def P_ratio(temperature, wanted_temperature):
         # For 1 degrees we want 100% working ratio
         # For 0 degrees we want 0% working ratio
-        ratio = min(1,max(0,(wanted_temperature - temperature)))
+        ratio = min(1, max(0, (wanted_temperature - temperature)))
         return ratio
 
     def get_last_history(self):
         try:
-            last_history = Heater_history.objects.all().filter(heater = self.id).latest('date')
+            last_history = Heater_history.objects.all().filter(heater=self.id).latest('date')
             state = last_history.state
             date = last_history.date
         except:
             state = None
             date = None
-        return {'state':state, 'date':date}
+        return {'state': state, 'date': date}
 
     def get_poweron_list(self, date_min, date_max):
-        history = Heater_history.objects.all().filter(heater = self.id).filter(date__gte=date_min).filter(date__lte=date_max)
+        history = Heater_history.objects.all().filter(heater=self.id).filter(date__gte=date_min).\
+            filter(date__lte=date_max)
         result = []
         previous_date = date_min
         # Build a list of tuples when the heater was on
         for temp_history in history:
-            if (temp_history.state == False):
+            if temp_history.state is False:
                 result.append([previous_date, temp_history.date])
             previous_date = temp_history.date
         # if the last element is true the we should add to the list until date_max
         # Warning : this is a query set, negative indexing is not supported
-        if (history.count() > 0):
+        if history.count() > 0:
             last_element = history[history.count()-1]
-            if (last_element.state == True):
+            if last_element.state is True:
                 result.append([last_element.date, date_max])
         return result
 
     def __unicode__(self):
         return self.name + ' (' + self.hostname + ')'
+
 
 class Heater_history(models.Model):
     heater = models.ForeignKey(Heater, related_name='history')
@@ -190,16 +200,17 @@ class Heater_history(models.Model):
     state = models.BooleanField()
 
     def __unicode__(self):
-        if (self.state == True):
+        if self.state is True:
             state_str = 'on'
         else:
             state_str = 'off'
         return 'At ' + self.date.strftime('%c') + ' ' + self.heater.name + ' was set to ' + state_str
 
+
 class Sensor(models.Model):
     hostname = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
-    address = models.CharField(max_length=50,null=True, blank=True)
+    address = models.CharField(max_length=50, null=True, blank=True)
     type = models.CharField(max_length=10, choices=SENSOR_TYPE)
     freq = models.PositiveIntegerField()
     status = models.BooleanField()
@@ -214,26 +225,27 @@ class Sensor(models.Model):
 
     def get_last_temperature(self):
         try:
-            last_temperature = Temperature.objects.all().filter(sensor = self.id).latest('date')
+            last_temperature = Temperature.objects.all().filter(sensor=self.id).latest('date')
             temp = last_temperature.offseted_temp
             date = last_temperature.date
         except:
             temp = None
             date = None
-        return {'temp':temp, 'date':date}
+        return {'temp': temp, 'date': date}
 
     def get_last_temperature_from_date(self, maxtime):
         try:
-            last_temperature = Temperature.objects.all().filter(sensor = self.id).filter(date__lte = maxtime).latest('date')
+            last_temperature = Temperature.objects.all().filter(sensor=self.id).filter(date__lte=maxtime).latest('date')
             temp = last_temperature.offseted_temp
             date = last_temperature.date
         except:
             temp = None
             date = None
-        return {'temp':temp, 'date':date}
+        return {'temp': temp, 'date': date}
 
     def __unicode__(self):
         return self.room_name + ' (' + self.hostname + ' - ' + self.name + ')'
+
 
 class Temperature(models.Model):
     sensor = models.ForeignKey(Sensor, related_name='temperatures')
@@ -243,7 +255,7 @@ class Temperature(models.Model):
     
     def save(self, *args, **kwargs):
         self.offseted_temp = self.temp + self.sensor.offset
-        super(Temperature, self).save(*args, **kwargs) # Call the "real" save() method.
+        super(Temperature, self).save(*args, **kwargs)  # Call the "real" save() method.
     
     def get_day(self):
         return self.date.strftime('%d-%m-%Y')
