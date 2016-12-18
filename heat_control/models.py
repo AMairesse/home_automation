@@ -108,7 +108,6 @@ class Heater(models.Model):
         # check the active rule against the last half-hour temperature.
         # If at least one sensor request heating then we return 'True'
         sensors = Sensor.objects.all().filter(heater=self)
-        previous_state = self.get_previous_state()
         for sensor in sensors:
             # Calculate the integral ratio from the last half-hour
             now = datetime.now(utc)
@@ -116,12 +115,9 @@ class Heater(models.Model):
             avg = Temperature.objects.all().filter(sensor=sensor)\
                                            .filter(date__gte=reference_time)\
                                            .filter(date__lte=now).aggregate(Avg('offseted_temp'))['offseted_temp__avg']
-            # if there was no temperature in the last 30 minutes then we should take the last one no matter what
-            # if there is no temperature at all then get to the next sensor
+            # if there was no temperature in the last 30 minutes then go to the next sensor
             if avg is None:
-                previous_temperature = sensor.get_last_temperature()['temp']
-                if previous_temperature is None:
-                    continue
+                continue
             else:
                 previous_temperature = Decimal(avg)
             active_rule = sensor.ruleset.get_active_rule()
@@ -133,7 +129,7 @@ class Heater(models.Model):
             P_ratio = self.P_ratio(actual_temperature, wanted_temp)
 
             # Get the needed working time
-            needed_working_minutes = int(min(1,(P_ratio + I_ratio)) * 30)
+            needed_working_minutes = int(min(1, (P_ratio + I_ratio)) * 30)
             
             # Get the real working time for the last 30 minutes
             working_time_list = self.get_poweron_list(reference_time, now)
