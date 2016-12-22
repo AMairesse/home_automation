@@ -85,7 +85,7 @@ class RuleList(generics.ListCreateAPIView):
 
 class RuleDetail(generics.RetrieveAPIView):
     """
-    Retrieve a rule  
+    Retrieve a rule
     """
     queryset = Rule.objects.all()
     serializer_class = RuleSerializer
@@ -147,13 +147,13 @@ def login_user(request):
     if request.POST:
         username = request.POST.get('username')
         password = request.POST.get('password')
-        next_url = request.GET.get('next', '')
+        next_url = request.GET.get('next', '/hc/')
 
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return redirect('https://www.famille-mairesse.fr%s' % next_url)
+                return redirect(next_url)
             else:
                 pass
                 # state = "Your account is not active, please contact the site admin."
@@ -237,7 +237,8 @@ def stats(request):
     context_data = {}
     c = RequestContext(request, context_data)
     if not request.user.is_authenticated():
-        return redirect('https://www.famille-mairesse.fr/hc/login?next=%s' % request.path)
+	host = request.get_host()
+        return redirect('/hc/login?next=%s' % request.path)
     else:
         return HttpResponse(t.render(c), content_type="text/html")
 
