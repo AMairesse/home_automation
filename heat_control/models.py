@@ -121,6 +121,8 @@ class Heater(models.Model):
             else:
                 previous_temperature = Decimal(avg)
             active_rule = sensor.ruleset.get_active_rule()
+            if active_rule is None:
+                continue
             wanted_temp = active_rule.temp
             I_ratio = self.I_ratio(previous_temperature, wanted_temp)
 
