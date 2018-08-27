@@ -1,7 +1,7 @@
 from django.template import Context, RequestContext, loader
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, Http404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from heat_control.models import Sensor, Temperature, Heater, Heater_history, Ruleset, Rule
 from datetime import datetime, timedelta
 from django.utils.timezone import utc
@@ -131,19 +131,12 @@ def heater_poweron_list(heater, date_min, date_max):
     return result
 
 
-def index(_):
+def index(request):
     # Init template
-    t = loader.get_template('heat_control/index.html')
-    context_data = {}
-    c = Context(context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    return render(request, 'heat_control/index.html', {})
 
 
 def login_user(request):
-    # Init template
-    t = loader.get_template('heat_control/login.html')
-    context_data = {}
-
     if request.POST:
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -162,13 +155,11 @@ def login_user(request):
             # state = "Your username and/or password were incorrect."
 
     # Send response
-    c = RequestContext(request, context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    return render(request, 'heat_control/login.html', {})
 
 
 def ruleset(request):
-    # Init template
-    t = loader.get_template('heat_control/ruleset.html')
+    # Init template's context
     context_data = {'error': False}
     # Get sensors list
     sensor_list = Sensor.objects.all().filter(status=True).order_by('-hostname')[:5]
@@ -194,13 +185,11 @@ def ruleset(request):
     ruleset_list = Ruleset.objects.all().order_by('-name')
     context_data.update({'ruleset_list': ruleset_list})
     # Send response
-    c = RequestContext(request, context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    return render(request, 'heat_control/ruleset.html', context_data)
 
 
-def day_graph(_, year_start, month_start, day_start, year_end, month_end, day_end):
-    # Init template
-    t = loader.get_template('heat_control/day_graph.html')
+def day_graph(request, year_start, month_start, day_start, year_end, month_end, day_end):
+    # Init template's context
     context_data = {}
     # Get sensors list
     sensor_list = Sensor.objects.all().filter(status=True).order_by('-hostname')[:5]
@@ -227,25 +216,19 @@ def day_graph(_, year_start, month_start, day_start, year_end, month_end, day_en
         poweron_series.extend(poweron_list)
     context_data.update({'poweron_series': poweron_series})
     # Send response
-    c = Context(context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    return render(request, 'heat_control/day_graph.html', context_data)
 
 
 def stats(request):
-    # Init template
-    t = loader.get_template('heat_control/stats.html')
-    context_data = {}
-    c = RequestContext(request, context_data)
     if not request.user.is_authenticated():
 	host = request.get_host()
         return redirect('/hc/login?next=%s' % request.path)
     else:
-        return HttpResponse(t.render(c), content_type="text/html")
+        return render(request, 'heat_control/stats.html', {})
 
 
-def runtime_graph(_, year_start, month_start, day_start, year_end, month_end, day_end):
-    # Init template
-    t = loader.get_template('heat_control/runtime_graph.html')
+def runtime_graph(request, year_start, month_start, day_start, year_end, month_end, day_end):
+    # Init template's context
     context_data = {}
     # Get heaters list
     heater_list = Heater.objects.all().filter(status=True).order_by('-hostname')[:5]
@@ -271,5 +254,4 @@ def runtime_graph(_, year_start, month_start, day_start, year_end, month_end, da
 
     context_data.update({'runtime_series': runtime_series})
     # Send response
-    c = Context(context_data)
-    return HttpResponse(t.render(c), content_type="text/html")
+    return render(request, 'heat_control/runtime_graph.html', context_data)

@@ -62,7 +62,7 @@
                     	    <select disabled name="{{ sensor.id }}">
                     	{% endif %}
                 	        {% for ruleset in ruleset_list %}
-						        <option value="{{ ruleset.id }}" {% if sensor.ruleset = ruleset %}selected{% endif %}>{{ ruleset.name }}</option>
+						        <option value="{{ ruleset.id }}" {% if sensor.ruleset == ruleset %}selected{% endif %}>{{ ruleset.name }}</option>
 					        {% endfor %}
 					        <option value="" {% if sensor.ruleset == None %}selected{% endif %}> </option>
 					    </select>
