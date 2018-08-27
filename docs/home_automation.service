@@ -1,0 +1,12 @@
+[Unit]
+Description=Home Automation
+After=network.target
+
+[Service]
+User=www-data
+Restart=on-failure
+WorkingDirectory=/srv/home_automation
+ExecStart=/usr/bin/gunicorn -b 0.0.0.0:8000 home_automation.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
